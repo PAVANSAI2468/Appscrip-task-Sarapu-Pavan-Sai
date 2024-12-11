@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Make sure to install axios (npm install axios)
+import axios from "axios";
 import "./index.css";
 
 const Categories = () => {
@@ -21,21 +21,38 @@ const Categories = () => {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
 
-  // Fetch products from FakeStoreAPI
+  // Fetch products from the provided API based on selected filters
   useEffect(() => {
-    const fetchProducts = async () => {
+    const fetchFilteredProducts = async () => {
       try {
-        const response = await axios.get("https://fakestoreapi.com/products");
+        const response = await axios.get("https://fakestoreapi.com/products", {
+          params: {
+            category: filters.men
+              ? "men"
+              : filters.women
+              ? "women"
+              : filters.kids
+              ? "kids"
+              : undefined,
+            occasion: filters.occasion !== "all" ? filters.occasion : undefined,
+            work: filters.work !== "all" ? filters.work : undefined,
+            fabric: filters.fabric !== "all" ? filters.fabric : undefined,
+            segment: filters.segment !== "all" ? filters.segment : undefined,
+            suitableFor:
+              filters.suitableFor !== "all" ? filters.suitableFor : undefined,
+            sort: sortOption,
+          },
+        });
         setProducts(response.data);
-        setFilteredProducts(response.data); // Initially, show all products
+        setFilteredProducts(response.data); // Initially show the fetched products
       } catch (error) {
         console.error("Error fetching products", error);
       }
     };
-    fetchProducts();
-  }, []);
+    fetchFilteredProducts();
+  }, [filters, sortOption]); // Rerun fetch when filters or sortOption change
 
-  // Filter products based on selected filters
+  // Apply the filter to the fetched products
   useEffect(() => {
     const applyFilters = () => {
       let filtered = [...products];
@@ -57,15 +74,52 @@ const Categories = () => {
         );
       }
 
-      // Filter by other criteria if applicable (Occasion, Work, etc.)
-      // Example: If you have categories in the product, you can filter by them here.
-      // You can expand more filters as per your requirements.
+      // Filter by other criteria (Occasion, Work, etc.)
+      if (filters.occasion !== "all") {
+        filtered = filtered.filter(
+          (product) =>
+            product.occasion?.toLowerCase() === filters.occasion.toLowerCase()
+        );
+      }
+
+      if (filters.work !== "all") {
+        filtered = filtered.filter(
+          (product) =>
+            product.work?.toLowerCase() === filters.work.toLowerCase()
+        );
+      }
+
+      if (filters.fabric !== "all") {
+        filtered = filtered.filter(
+          (product) =>
+            product.fabric?.toLowerCase() === filters.fabric.toLowerCase()
+        );
+      }
+
+      if (filters.segment !== "all") {
+        filtered = filtered.filter(
+          (product) =>
+            product.segment?.toLowerCase() === filters.segment.toLowerCase()
+        );
+      }
+
+      if (filters.suitableFor !== "all") {
+        filtered = filtered.filter(
+          (product) =>
+            product.suitableFor?.toLowerCase() ===
+            filters.suitableFor.toLowerCase()
+        );
+      }
 
       // Sorting products
       if (sortOption === "price-low-high") {
         filtered = filtered.sort((a, b) => a.price - b.price);
       } else if (sortOption === "price-high-low") {
         filtered = filtered.sort((a, b) => b.price - a.price);
+      }
+
+      if (sortOption === "newest") {
+        filtered = filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
       }
 
       // Update the filtered products list
