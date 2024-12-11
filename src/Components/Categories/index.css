@@ -1,68 +1,103 @@
-/* Styling for each recommended product */
-.recommended-items {
-  display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(280px, 1fr)
-  ); /* Adjust the minimum width for better distribution */
+/* Default styles for categories container */
+.categories-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
-  margin-top: 20px;
 }
 
-.product-card {
+/* Container for category filters and sort options */
+.categories-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 300px;
+  padding: 20px;
   border: 1px solid #ddd;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 5px;
-  text-align: center;
-  transition: box-shadow 0.3s ease;
 }
 
-.product-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* Button to toggle filter visibility */
+.filter-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 10px;
 }
 
-.product-card img {
-  width: 100%; /* Ensures images take the full width of their container */
-  height: auto; /* Maintains aspect ratio */
-  max-height: 200px; /* Set a fixed height for consistency */
-  object-fit: cover; /* Maintains aspect ratio and fills the container */
-  border-radius: 5px;
-  margin-bottom: 15px;
+/* Active state for filter button */
+.filter-button.active {
+  background-color: #0056b3;
 }
 
-.product-card h4 {
-  font-size: 18px;
-  margin-bottom: 10px;
+/* Container for sort options */
+.filter-sort-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Increased gap for better spacing */
+  padding: 10px;
+  border: 1px solid #ddd;
 }
 
-.product-card p {
-  font-size: 16px;
-  color: #007bff;
+/* Label styling for checkbox and select groups */
+.checkbox-group label,
+.select-group label {
+  display: block;
+  margin: 5px 0;
+  font-weight: bold;
 }
 
-/* For mobile responsiveness */
-@media (max-width: 768px) {
-  .recommended-items {
-    grid-template-columns: repeat(
-      auto-fill,
-      minmax(200px, 1fr)
-    ); /* Adjusted for smaller screens */
+/* Select styling for sort options */
+.select-group select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+/* Media query for small devices */
+@media (max-width: 524px) {
+  .categories-section {
+    display: none; /* Hidden initially */
   }
 
-  .sort-options select {
-    width: 150px;
-  }
-}
-
-/* For smaller devices */
-@media (max-width: 480px) {
-  .recommended-items {
-    grid-template-columns: 1fr; /* Display one item per row */
+  .categories-section.show {
+    display: block; /* Displayed when filter button is clicked */
   }
 
   .filter-button {
     width: 100%;
-    margin-bottom: 15px;
   }
+}
+
+/* Media query for medium to large devices */
+@media (min-width: 525px) {
+  .categories-container {
+    flex-direction: row;
+    gap: 40px;
+  }
+
+  .categories-section {
+    display: block;
+  }
+
+  .filter-button {
+    display: none; /* Hide filter button on larger screens */
+  }
+}
+
+/* Additional styling for sort dropdown */
+.sort-dropdown {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.sort-dropdown option {
+  padding: 10px;
 }

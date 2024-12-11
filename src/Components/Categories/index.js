@@ -1,289 +1,95 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import "./index.css";
 
-const Categories = () => {
-  const [showFilters, setShowFilters] = useState(false);
-  const [filters, setFilters] = useState({
-    men: false,
-    women: false,
-    kids: false,
-    occasion: "all",
-    work: "all",
-    fabric: "all",
-    segment: "all",
-    suitableFor: "all",
-    rawMaterial: "all",
-    pattern: "all",
-  });
-
-  const [sortOption, setSortOption] = useState("newest");
+const App = () => {
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [sortOption, setSortOption] = useState("newest");
 
-  // Fetch products from the provided API based on selected filters
+  // Fetch categories
   useEffect(() => {
-    const fetchFilteredProducts = async () => {
-      try {
-        const response = await axios.get("https://fakestoreapi.com/products", {
-          params: {
-            category: filters.men
-              ? "men"
-              : filters.women
-              ? "women"
-              : filters.kids
-              ? "kids"
-              : undefined,
-            occasion: filters.occasion !== "all" ? filters.occasion : undefined,
-            work: filters.work !== "all" ? filters.work : undefined,
-            fabric: filters.fabric !== "all" ? filters.fabric : undefined,
-            segment: filters.segment !== "all" ? filters.segment : undefined,
-            suitableFor:
-              filters.suitableFor !== "all" ? filters.suitableFor : undefined,
-            sort: sortOption,
-          },
-        });
-        setProducts(response.data);
-        setFilteredProducts(response.data); // Initially show the fetched products
-      } catch (error) {
-        console.error("Error fetching products", error);
-      }
-    };
-    fetchFilteredProducts();
-  }, [filters, sortOption]); // Rerun fetch when filters or sortOption change
+    fetch("https://fakestoreapi.com/products/categories")
+      .then((res) => res.json())
+      .then((json) => setCategories(json))
+      .catch((error) => console.log(error));
+  }, []);
 
-  // Apply the filter to the fetched products
+  // Fetch products based on selected category and sort option
   useEffect(() => {
-    const applyFilters = () => {
-      let filtered = [...products];
+    const fetchProducts = () => {
+      const url = selectedCategory
+        ? `https://fakestoreapi.com/products/category/${selectedCategory}`
+        : "https://fakestoreapi.com/products";
 
-      // Filter by category (Men, Women, Kids)
-      if (filters.men) {
-        filtered = filtered.filter((product) =>
-          product.category.toLowerCase().includes("men")
-        );
-      }
-      if (filters.women) {
-        filtered = filtered.filter((product) =>
-          product.category.toLowerCase().includes("women")
-        );
-      }
-      if (filters.kids) {
-        filtered = filtered.filter((product) =>
-          product.category.toLowerCase().includes("kids")
-        );
-      }
-
-      // Filter by other criteria (Occasion, Work, etc.)
-      if (filters.occasion !== "all") {
-        filtered = filtered.filter(
-          (product) =>
-            product.occasion?.toLowerCase() === filters.occasion.toLowerCase()
-        );
-      }
-
-      if (filters.work !== "all") {
-        filtered = filtered.filter(
-          (product) =>
-            product.work?.toLowerCase() === filters.work.toLowerCase()
-        );
-      }
-
-      if (filters.fabric !== "all") {
-        filtered = filtered.filter(
-          (product) =>
-            product.fabric?.toLowerCase() === filters.fabric.toLowerCase()
-        );
-      }
-
-      if (filters.segment !== "all") {
-        filtered = filtered.filter(
-          (product) =>
-            product.segment?.toLowerCase() === filters.segment.toLowerCase()
-        );
-      }
-
-      if (filters.suitableFor !== "all") {
-        filtered = filtered.filter(
-          (product) =>
-            product.suitableFor?.toLowerCase() ===
-            filters.suitableFor.toLowerCase()
-        );
-      }
-
-      // Sorting products
-      if (sortOption === "price-low-high") {
-        filtered = filtered.sort((a, b) => a.price - b.price);
-      } else if (sortOption === "price-high-low") {
-        filtered = filtered.sort((a, b) => b.price - a.price);
-      }
-
-      if (sortOption === "newest") {
-        filtered = filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
-      }
-
-      // Update the filtered products list
-      setFilteredProducts(filtered);
+      fetch(url)
+        .then((res) => res.json())
+        .then((json) => {
+          let sortedProducts = json;
+          if (sortOption === "price-low-to-high") {
+            sortedProducts = sortedProducts.sort((a, b) => a.price - b.price);
+          } else if (sortOption === "price-high-to-low") {
+            sortedProducts = sortedProducts.sort((a, b) => b.price - a.price);
+          }
+          setProducts(sortedProducts);
+        })
+        .catch((error) => console.log(error));
     };
 
-    applyFilters();
-  }, [filters, sortOption, products]);
+    fetchProducts();
+  }, [selectedCategory, sortOption]);
 
-  const handleCheckboxChange = (e) => {
-    const { name, checked } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: checked,
-    }));
+  const handleCategoryChange = (event) => {
+    setSelectedCategory(event.target.value);
   };
 
-  const handleSelectChange = (e) => {
-    const { name, value } = e.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: value,
-    }));
-  };
-
-  const handleSortChange = (e) => {
-    setSortOption(e.target.value);
+  const handleSortChange = (event) => {
+    setSortOption(event.target.value);
   };
 
   return (
     <div className="categories-container">
-      <button
-        className="filter-button"
-        onClick={() => setShowFilters(!showFilters)}
-      >
-        {showFilters ? "Hide Filters" : "Show Filters"}
-      </button>
+      <div className="categories-section">
+        <h3>Select Category</h3>
+        <select onChange={handleCategoryChange} value={selectedCategory}>
+          <option value="">All Categories</option>
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
 
-      <div className={`categories-section ${showFilters ? "show" : ""}`}>
-        <h2>Categories</h2>
-        <div className="checkbox-group">
-          <h3>Ideal For</h3>
-          <label>
-            <input
-              type="checkbox"
-              name="men"
-              checked={filters.men}
-              onChange={handleCheckboxChange}
-            />{" "}
-            Men
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              name="women"
-              checked={filters.women}
-              onChange={handleCheckboxChange}
-            />{" "}
-            Women
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              name="kids"
-              checked={filters.kids}
-              onChange={handleCheckboxChange}
-            />{" "}
-            Kids
-          </label>
-        </div>
-
-        <div className="checkbox-group">
-          <h3>Occasion</h3>
+        <div className="filter-sort-container">
+          <label htmlFor="sort">Sort by:</label>
           <select
-            name="occasion"
-            value={filters.occasion}
-            onChange={handleSelectChange}
+            id="sort"
+            className="sort-dropdown"
+            onChange={handleSortChange}
+            value={sortOption}
           >
-            <option value="all">All</option>
-            <option value="casual">Casual</option>
-            <option value="formal">Formal</option>
-          </select>
-        </div>
-
-        <div className="checkbox-group">
-          <h3>Work Type</h3>
-          <select
-            name="work"
-            value={filters.work}
-            onChange={handleSelectChange}
-          >
-            <option value="all">All</option>
-            <option value="office">Office</option>
-            <option value="home">Home</option>
-          </select>
-        </div>
-
-        <div className="checkbox-group">
-          <h3>Fabric</h3>
-          <select
-            name="fabric"
-            value={filters.fabric}
-            onChange={handleSelectChange}
-          >
-            <option value="all">All</option>
-            <option value="cotton">Cotton</option>
-            <option value="wool">Wool</option>
-          </select>
-        </div>
-
-        <div className="checkbox-group">
-          <h3>Segment</h3>
-          <select
-            name="segment"
-            value={filters.segment}
-            onChange={handleSelectChange}
-          >
-            <option value="all">All</option>
-            <option value="premium">Premium</option>
-            <option value="budget">Budget</option>
-          </select>
-        </div>
-
-        <div className="checkbox-group">
-          <h3>Suitable For</h3>
-          <select
-            name="suitableFor"
-            value={filters.suitableFor}
-            onChange={handleSelectChange}
-          >
-            <option value="all">All</option>
-            <option value="summer">Summer</option>
-            <option value="winter">Winter</option>
+            <option value="newest">Newest</option>
+            <option value="popular">Popular</option>
+            <option value="price-low-to-high">Price: Low to High</option>
+            <option value="price-high-to-low">Price: High to Low</option>
           </select>
         </div>
       </div>
 
-      <div className="recommended-section">
-        <h3>Recommended Products</h3>
-        <div className="sort-options">
-          <label>Sort by:</label>
-          <select value={sortOption} onChange={handleSortChange}>
-            <option value="newest">Newest</option>
-            <option value="price-low-high">Price: Low to High</option>
-            <option value="price-high-low">Price: High to Low</option>
-          </select>
-        </div>
-
-        <div className="recommended-items">
-          {filteredProducts.length === 0 ? (
-            <p>No products found with the selected filters</p>
-          ) : (
-            filteredProducts.map((product) => (
-              <div key={product.id} className="product-card">
-                <img src={product.image} alt={product.title} />
-                <h4>{product.title}</h4>
-                <p>${product.price}</p>
-              </div>
-            ))
-          )}
-        </div>
+      <div className="products">
+        {products.length === 0 ? (
+          <p>No products available</p>
+        ) : (
+          products.map((product) => (
+            <div key={product.id} className="product-card">
+              <img src={product.image} alt={product.title} />
+              <h2>{product.title}</h2>
+              <p>${product.price}</p>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 };
 
-export default Categories;
+export default App;
