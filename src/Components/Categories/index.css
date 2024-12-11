@@ -1,0 +1,70 @@
+/* General product item styles */
+.product-item {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden; /* Prevents content from overflowing the rounded corners */
+}
+
+/* Product image styling */
+.product-item img {
+  max-width: 100%; /* Ensure image doesn't exceed the container width */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: cover; /* Crop image if necessary to cover the container */
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.product-item img:hover {
+  transform: scale(1.1); /* Slight zoom on hover */
+}
+
+/* Media Queries for responsive image sizing */
+
+/* For large devices (>= 769px) */
+@media (min-width: 769px) {
+  .recommended-items {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(250px, 1fr)
+    ); /* Adjust column size based on available space */
+    gap: 20px;
+  }
+
+  .product-item img {
+    width: 100%; /* Ensures images fill the width of the product card */
+    max-height: 200px; /* Limit the height to maintain a consistent look */
+  }
+}
+
+/* For medium devices (<= 768px) */
+@media (max-width: 768px) {
+  .recommended-items {
+    display: grid;
+    grid-template-columns: 1fr; /* Display one item per row */
+    gap: 10px;
+  }
+
+  .product-item img {
+    width: 100%; /* Ensures images fit the width of the product card */
+    max-height: 200px; /* Adjust the height to ensure it's not too large */
+  }
+}
+
+/* For very small devices (<= 480px) */
+@media (max-width: 480px) {
+  .recommended-items {
+    display: grid;
+    grid-template-columns: 1fr; /* Display one item per row */
+    gap: 10px;
+  }
+
+  .product-item img {
+    width: 100%; /* Full width for images */
+    max-height: 150px; /* Further limit the height for very small devices */
+  }
+}
